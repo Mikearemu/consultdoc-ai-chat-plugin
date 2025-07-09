@@ -99,14 +99,11 @@ jQuery(document).ready(function ($) {
     }
   });
 
-  $(document).on('click', '.latepoint-book-button', function () {
-    if (typeof latepoint_button_clicked === 'function') {
-      localStorage.setItem('consultdoc_trigger_save', '1'); // flag for saving
-      latepoint_button_clicked(); // popup booking
-    } else {
-      alert('Booking function not available.');
-    }
-  });
+$(document).on('click', '.latepoint-book-button', function () {
+  // Save chat flag to localStorage before booking
+  localStorage.setItem('consultdoc_trigger_save', '1');
+});
+
 
   ask();
 });
