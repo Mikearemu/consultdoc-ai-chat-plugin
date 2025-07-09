@@ -55,10 +55,11 @@ jQuery(document).ready(function ($) {
           const cta = $(`
           <div class="msg bot">
             <div class="bubble">
-              <button class="book-now-btn">Book a Consultation</button>
+              <a href="#" class="latepoint-book-button book-now-btn">Book a Consultation</a>
             </div>
           </div>
         `);
+
           log.append(cta);
           log.scrollTop(log.prop("scrollHeight"));
         } else {
@@ -98,7 +99,7 @@ jQuery(document).ready(function ($) {
     }
   });
 
-  $(document).on('click', '.book-now-btn', function () {
+  $(document).on('click', '.latepoint-book-button', function () {
     if (typeof latepoint_button_clicked === 'function') {
       localStorage.setItem('consultdoc_trigger_save', '1'); // flag for saving
       latepoint_button_clicked(); // popup booking
