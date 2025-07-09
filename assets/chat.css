@@ -1,0 +1,161 @@
+.consultdoc-container {
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: inherit;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 128, 0, 0.1);
+  background: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+}
+
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-header {
+  background: #007b5e;
+  color: #fff;
+  padding: 15px;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.chat-log {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+.chat-footer {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  background: #fff;
+}
+
+.chat-input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  resize: none;
+  border-radius: 6px;
+  font-size: 1em;
+  min-height: 44px;
+}
+
+.chat-send {
+  background: #007b5e;
+  color: white;
+  padding: 0 20px;
+  border: none;
+  margin-left: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  min-width: 100px;
+}
+
+.chat-send:hover {
+  background: #0a9171;
+}
+
+/* Message bubbles */
+.msg {
+  display: flex;
+  margin: 10px 0;
+}
+
+.msg.bot {
+  justify-content: flex-start;
+}
+
+.msg.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: 0.95em;
+  line-height: 1.5;
+  position: relative;
+}
+
+.msg.bot .bubble {
+  background: #e0f0dc;
+  color: #333;
+}
+
+.msg.user .bubble {
+  background: #007b5e;
+  color: #fff;
+}
+
+/* Typing indicator */
+.bubble.typing span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  background: #aaa;
+  border-radius: 50%;
+  animation: blink 1.4s infinite ease-in-out;
+}
+
+.bubble.typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.bubble.typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .consultdoc-container {
+    margin: 10px;
+    height: 90vh;
+  }
+
+  .chat-send {
+    min-width: 80px;
+    padding: 0 10px;
+  }
+}
+
+
+.book-now-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-weight: bold;
+  background: #008751;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.book-now-btn:hover {
+  background: #218838;
+}
