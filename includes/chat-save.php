@@ -47,5 +47,5 @@ function consultdoc_ai_save_chat() {
         wp_send_json_error('Database error: ' . esc_html($wpdb->last_error));
     }
 
-    wp_send_json_success(['msg' => '✅ Chat saved successfully.']);
+    wp_send_json_success(['msg' => 'Chat saved successfully.']);
 }

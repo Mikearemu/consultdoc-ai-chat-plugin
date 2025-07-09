@@ -10,19 +10,24 @@ jQuery(document).ready(function($) {
   function addMsg(text, from) {
     const el = $('<div class="msg ' + from + '"><div class="bubble">' + text + '</div></div>');
     log.append(el);
-    log.scrollTop(log.prop("scrollHeight"));
+    scrollToBottom();
   }
 
   // Show typing animation
   function showTypingIndicator() {
     const typing = $('<div id="chat-typing" class="msg bot"><div class="bubble typing"><span>.</span><span>.</span><span>.</span></div></div>');
     log.append(typing);
-    log.scrollTop(log.prop("scrollHeight"));
+    scrollToBottom();
   }
 
   // Remove typing animation
   function removeTypingIndicator() {
     $('#chat-typing').remove();
+  }
+
+  // Scroll to bottom
+  function scrollToBottom() {
+    log.scrollTop(log.prop("scrollHeight"));
   }
 
   // Ask next question or call AI
@@ -46,26 +51,35 @@ jQuery(document).ready(function($) {
     })
     .done(function(res) {
       removeTypingIndicator();
+
       if (res.success) {
         addMsg(res.data.response, 'bot');
 
-        // Append CTA button
+        // Inject LatePoint-style booking button
         const cta = $(`
           <div class="msg bot">
-            <div class="bubble">
-              <button class="book-now-btn">Book a Consultation</button>
+            <div class="bubble bubble-cta">
+              <a href="#" class="latepoint-book-button" data-os-trigger>
+                Book a Consultation
+              </a>
             </div>
           </div>
         `);
         log.append(cta);
-        log.scrollTop(log.prop("scrollHeight"));
+        scrollToBottom();
+
+        // Ensure LatePoint popup can initialize if dynamic
+        if (typeof OsFrontendApp !== 'undefined' && OsFrontendApp.initBookingPopup) {
+          OsFrontendApp.initBookingPopup();
+        }
+
       } else {
-        addMsg('Error: ' + res.data, 'bot');
+        addMsg('❌ Error: ' + res.data, 'bot');
       }
     })
     .fail(function(xhr, status, error) {
       removeTypingIndicator();
-      addMsg('Server error: ' + error, 'bot');
+      addMsg('❌ Server error: ' + error, 'bot');
     })
     .always(function() {
       sendBtn.prop('disabled', false);
@@ -92,15 +106,6 @@ jQuery(document).ready(function($) {
     }
   });
 
-  // Handle booking button
-  $(document).on('click', '.book-now-btn', function () {
-    if (typeof latepoint_button_clicked === 'function') {
-      latepoint_button_clicked();
-    } else {
-      alert('Booking function not available.');
-    }
-  });
-
-  // Start chat
+  // Start conversation
   ask();
 });
