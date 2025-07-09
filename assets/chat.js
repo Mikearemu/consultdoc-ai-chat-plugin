@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
   const questions = consultdoc_ai_vars.questions;
   let step = 0;
   let messages = JSON.parse(localStorage.getItem('consultdoc_chat') || '[]');
@@ -45,40 +45,40 @@ jQuery(document).ready(function($) {
       nonce: consultdoc_ai_vars.nonce,
       messages: JSON.stringify(messages.map(m => ({ text: m.text })))
     })
-    .done(function(res) {
-      removeTypingIndicator();
-      if (res.success) {
-        addMsg(res.data.response, 'bot');
-        messages.push({ text: res.data.response, from: 'bot' });
-        updateLocal();
+      .done(function (res) {
+        removeTypingIndicator();
+        if (res.success) {
+          addMsg(res.data.response, 'bot');
+          messages.push({ text: res.data.response, from: 'bot' });
+          updateLocal();
 
-        const cta = $(`
+          const cta = $(`
           <div class="msg bot">
             <div class="bubble">
               <button class="book-now-btn">Book a Consultation</button>
             </div>
           </div>
         `);
-        log.append(cta);
-        log.scrollTop(log.prop("scrollHeight"));
-      } else {
-        addMsg('Error: ' + res.data, 'bot');
-      }
-    })
-    .fail(function(xhr, status, error) {
-      removeTypingIndicator();
-      addMsg('Server error: ' + error, 'bot');
-    })
-    .always(function() {
-      sendBtn.prop('disabled', false);
-    });
+          log.append(cta);
+          log.scrollTop(log.prop("scrollHeight"));
+        } else {
+          addMsg('Error: ' + res.data, 'bot');
+        }
+      })
+      .fail(function (xhr, status, error) {
+        removeTypingIndicator();
+        addMsg('Server error: ' + error, 'bot');
+      })
+      .always(function () {
+        sendBtn.prop('disabled', false);
+      });
   }
 
   function updateLocal() {
     localStorage.setItem('consultdoc_chat', JSON.stringify(messages));
   }
 
-  sendBtn.click(function() {
+  sendBtn.click(function () {
     const val = input.val().trim();
     if (!val) return;
 
@@ -91,7 +91,7 @@ jQuery(document).ready(function($) {
     setTimeout(ask, 600);
   });
 
-  input.on('keypress', function(e) {
+  input.on('keypress', function (e) {
     if (e.which === 13) {
       sendBtn.click();
       return false;

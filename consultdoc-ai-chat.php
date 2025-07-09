@@ -65,3 +65,23 @@ function consultdoc_ai_create_table()
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
 }
+
+// Other plugin setup code...
+
+// Hook to save chat to DB after login
+add_action('wp_login', function($user_login, $user) {
+  if (!isset($_COOKIE['consultdoc_chat_data'])) return;
+
+  $raw = stripslashes_deep($_COOKIE['consultdoc_chat_data']);
+  $chat = json_decode($raw, true);
+  if (!$chat || !is_array($chat)) return;
+
+  global $wpdb;
+  $wpdb->insert("{$wpdb->prefix}consultdoc_chats", [
+    'user_id'    => $user->ID,
+    'chat'       => implode("\n", array_map(fn($m) => $m['text'], $chat)),
+    'created_at' => current_time('mysql')
+  ]);
+
+  setcookie('consultdoc_chat_data', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+}, 10, 2);
