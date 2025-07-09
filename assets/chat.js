@@ -1,45 +1,41 @@
 jQuery(document).ready(function($) {
   const questions = consultdoc_ai_vars.questions;
   let step = 0;
-  let messages = [];
+  let messages = JSON.parse(localStorage.getItem('consultdoc_chat') || '[]');
   const log = $('#chat-log');
   const input = $('#chat-input');
   const sendBtn = $('#chat-send');
 
-  // Append message bubble
+  // Rehydrate old chat (if exists)
+  messages.forEach(m => addMsg(m.text, m.from));
+
   function addMsg(text, from) {
     const el = $('<div class="msg ' + from + '"><div class="bubble">' + text + '</div></div>');
     log.append(el);
-    scrollToBottom();
+    log.scrollTop(log.prop("scrollHeight"));
   }
 
-  // Show typing animation
   function showTypingIndicator() {
     const typing = $('<div id="chat-typing" class="msg bot"><div class="bubble typing"><span>.</span><span>.</span><span>.</span></div></div>');
     log.append(typing);
-    scrollToBottom();
+    log.scrollTop(log.prop("scrollHeight"));
   }
 
-  // Remove typing animation
   function removeTypingIndicator() {
     $('#chat-typing').remove();
   }
 
-  // Scroll to bottom
-  function scrollToBottom() {
-    log.scrollTop(log.prop("scrollHeight"));
-  }
-
-  // Ask next question or call AI
   function ask() {
     if (step < questions.length) {
-      addMsg(questions[step], 'bot');
+      const q = questions[step];
+      addMsg(q, 'bot');
+      messages.push({ text: q, from: 'bot' });
+      updateLocal();
     } else {
       callGemini();
     }
   }
 
-  // Call Gemini API
   function callGemini() {
     sendBtn.prop('disabled', true);
     showTypingIndicator();
@@ -47,58 +43,54 @@ jQuery(document).ready(function($) {
     $.post(consultdoc_ai_vars.ajax_url, {
       action: 'consultdoc_ai_handle_chat',
       nonce: consultdoc_ai_vars.nonce,
-      messages: JSON.stringify(messages)
+      messages: JSON.stringify(messages.map(m => ({ text: m.text })))
     })
     .done(function(res) {
       removeTypingIndicator();
-
       if (res.success) {
         addMsg(res.data.response, 'bot');
+        messages.push({ text: res.data.response, from: 'bot' });
+        updateLocal();
 
-        // Inject LatePoint-style booking button
         const cta = $(`
           <div class="msg bot">
-            <div class="bubble bubble-cta">
-              <a href="#" class="latepoint-book-button" data-os-trigger>
-                Book a Consultation
-              </a>
+            <div class="bubble">
+              <button class="book-now-btn">Book a Consultation</button>
             </div>
           </div>
         `);
         log.append(cta);
-        scrollToBottom();
-
-        // Ensure LatePoint popup can initialize if dynamic
-        if (typeof OsFrontendApp !== 'undefined' && OsFrontendApp.initBookingPopup) {
-          OsFrontendApp.initBookingPopup();
-        }
-
+        log.scrollTop(log.prop("scrollHeight"));
       } else {
-        addMsg('❌ Error: ' + res.data, 'bot');
+        addMsg('Error: ' + res.data, 'bot');
       }
     })
     .fail(function(xhr, status, error) {
       removeTypingIndicator();
-      addMsg('❌ Server error: ' + error, 'bot');
+      addMsg('Server error: ' + error, 'bot');
     })
     .always(function() {
       sendBtn.prop('disabled', false);
     });
   }
 
-  // Handle message send
+  function updateLocal() {
+    localStorage.setItem('consultdoc_chat', JSON.stringify(messages));
+  }
+
   sendBtn.click(function() {
     const val = input.val().trim();
     if (!val) return;
 
     addMsg(val, 'user');
-    messages.push({ text: val });
+    messages.push({ text: val, from: 'user' });
+    updateLocal();
+
     input.val('');
     step++;
     setTimeout(ask, 600);
   });
 
-  // Optional: Send on Enter
   input.on('keypress', function(e) {
     if (e.which === 13) {
       sendBtn.click();
@@ -106,6 +98,22 @@ jQuery(document).ready(function($) {
     }
   });
 
-  // Start conversation
+  $(document).on('click', '.book-now-btn', function () {
+    if (typeof latepoint_button_clicked === 'function') {
+      localStorage.setItem('consultdoc_trigger_save', '1'); // flag for saving
+      latepoint_button_clicked(); // popup booking
+    } else {
+      alert('Booking function not available.');
+    }
+  });
+
   ask();
 });
+
+if (localStorage.getItem('consultdoc_trigger_save')) {
+  const chat = localStorage.getItem('consultdoc_chat');
+  document.cookie = 'consultdoc_chat_data=' + encodeURIComponent(chat) + '; path=/';
+  localStorage.removeItem('consultdoc_chat');
+  localStorage.removeItem('consultdoc_trigger_save');
+}
+
